@@ -1,10 +1,10 @@
 // 小六壬核心算法
 // 排布方式：三指六节横向排列
 //         食指      中指      无名指
-//   上节  │速喜│ → │赤口│ → │空亡│
+//   上节  │留连│ → │速喜│ → │赤口│
 //           ↑                   ↓
-//   下节  │大安│ ← │留连│ ← │小吉│
-// 顺时针顺序：大安(0) → 速喜(1) → 赤口(2) → 空亡(3) → 小吉(4) → 留连(5) → 循环
+//   下节  │大安│ ← │空亡│ ← │小吉│
+// 顺时针顺序：大安(0) → 留连(1) → 速喜(2) → 赤口(3) → 小吉(4) → 空亡(5) → 循环
 
 export interface God {
   index: number
@@ -32,9 +32,20 @@ export const GODS: God[] = [
   },
   {
     index: 1,
-    name: '速喜',
+    name: '留连',
     position: '食指上节',
     finger: 'index',
+    row: 'top',
+    element: '水',
+    meaning: '人未归时，属水玄武，凡谋事二、八、十。',
+    poem: '留连事难成，求谋日未明。官事凡宜缓，去者未回程。失物南方见，急讨方心称。更须防口舌，人口且平平。',
+    fortune: 'neutral'
+  },
+  {
+    index: 2,
+    name: '速喜',
+    position: '中指上节',
+    finger: 'middle',
     row: 'top',
     element: '火',
     meaning: '人即至时，属火朱雀，凡谋事三、六、九。',
@@ -42,25 +53,14 @@ export const GODS: God[] = [
     fortune: 'good'
   },
   {
-    index: 2,
+    index: 3,
     name: '赤口',
-    position: '中指上节',
-    finger: 'middle',
+    position: '无名指上节',
+    finger: 'ring',
     row: 'top',
     element: '金',
     meaning: '官事凶时，属金白虎，凡谋事四、七、十。',
     poem: '赤口主口舌，官非切要防。失物速速讨，行人有惊慌。鸡犬多作怪，病者出西方。更须防咀咒，恐怕染瘟皇。',
-    fortune: 'bad'
-  },
-  {
-    index: 3,
-    name: '空亡',
-    position: '无名指上节',
-    finger: 'ring',
-    row: 'top',
-    element: '土',
-    meaning: '音信稀时，属土勾陈，凡谋事三、六、九。',
-    poem: '空亡事不祥，阴人少主张。求财无利益，行人有灾殃。失物寻不见，官事有刑伤。病人逢暗鬼，解禳保安康。',
     fortune: 'bad'
   },
   {
@@ -76,14 +76,14 @@ export const GODS: God[] = [
   },
   {
     index: 5,
-    name: '留连',
+    name: '空亡',
     position: '中指下节',
     finger: 'middle',
     row: 'bottom',
-    element: '水',
-    meaning: '人未归时，属水玄武，凡谋事二、八、十。',
-    poem: '留连事难成，求谋日未明。官事凡宜缓，去者未回程。失物南方见，急讨方心称。更须防口舌，人口且平平。',
-    fortune: 'neutral'
+    element: '土',
+    meaning: '音信稀时，属土勾陈，凡谋事三、六、九。',
+    poem: '空亡事不祥，阴人少主张。求财无利益，行人有灾殃。失物寻不见，官事有刑伤。病人逢暗鬼，解禳保安康。',
+    fortune: 'bad'
   }
 ]
 
