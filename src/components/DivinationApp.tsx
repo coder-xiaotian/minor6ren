@@ -4,6 +4,7 @@ import { useState } from 'react'
 import HandDiagram from '@/components/HandDiagram'
 import Result from '@/components/Result'
 import DatePicker from '@/components/DatePicker'
+import ShareButton from '@/components/ShareButton'
 import { calculate, CalculationResult } from '@/lib/xiaoliu'
 import { getCurrentLunar, createLunarDateTime, LunarDateTime } from '@/lib/lunar'
 
@@ -130,6 +131,11 @@ export default function DivinationApp({ initialLunar, initialResult }: Divinatio
         {/* 结果展示 */}
         <div className="mb-6">
           <Result result={result} lunar={lunar} theme={theme} />
+        </div>
+
+        {/* 分享按钮 */}
+        <div className="flex justify-center mb-6">
+          <ShareButton result={result} lunar={lunar} theme={theme} />
         </div>
 
         {/* 页脚 */}
