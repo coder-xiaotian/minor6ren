@@ -23,9 +23,9 @@ export async function GET(req: NextRequest) {
 
   const fortuneStyle = fortuneStyles[fortune] || fortuneStyles.neutral
 
-  // 加载中文字体（本地 OTF 文件）
+  // 加载中文字体（远程 CDN）
   const fontData = await fetch(
-    new URL('../../fonts/NotoSansSC-Medium.otf', import.meta.url)
+    'https://cdn.jsdelivr.net/fontsource/fonts/noto-sans-sc@latest/latin-500-normal.ttf'
   ).then((res) => res.arrayBuffer())
 
   return new ImageResponse(
@@ -66,9 +66,9 @@ export async function GET(req: NextRequest) {
               gap: 8,
             }}
           >
-            <span style={{ color: '#a855f7' }}>◆</span>
+            <span style={{ color: '#a855f7' }}>•</span>
             <span>小六壬 · 今日卦</span>
-            <span style={{ color: '#a855f7' }}>◆</span>
+            <span style={{ color: '#a855f7' }}>•</span>
           </div>
 
           {/* 六神名称 */}
