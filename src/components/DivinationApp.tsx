@@ -201,10 +201,11 @@ export default function DivinationApp({ initialLunar, initialResult }: Divinatio
                     onChange={(e) => handleNumberChange(index as 0 | 1 | 2, e.target.value)}
                     className={`w-16 px-2 py-1 text-center rounded border text-lg font-mono
                       ${isModern
-                        ? 'border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
-                        : 'border-amber-400 bg-amber-50 focus:border-red-600 focus:ring-1 focus:ring-red-600 text-stone-800'}
-                      ${isRolling ? 'animate-pulse' : ''}
+                        ? 'border-gray-300 bg-white text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                        : 'border-amber-400 bg-amber-50 text-stone-800 focus:border-red-600 focus:ring-1 focus:ring-red-600'}
+                      ${isRolling ? 'animate-pulse opacity-70' : ''}
                     `}
+                    style={{ color: isModern ? '#111827' : '#292524' }}
                     disabled={isRolling}
                   />
                 ))}
