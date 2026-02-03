@@ -167,6 +167,124 @@ export function calculate(
 }
 
 /**
+ * 基于三个数字进行小六壬推算
+ * @param num1 第一个数（对应月份）
+ * @param num2 第二个数（对应日期）
+ * @param num3 第三个数（对应时辰）
+ */
+export function calculateByNumbers(
+  num1: number,
+  num2: number,
+  num3: number
+): CalculationResult {
+  // 第一个数起大安
+  const monthGodIndex = (num1 - 1) % 6
+  // 从第一个数落点起，数第二个数
+  const dayGodIndex = (monthGodIndex + num2 - 1) % 6
+  // 从第二个数落点起，数第三个数
+  const hourGodIndex = (dayGodIndex + num3 - 1) % 6
+
+  return {
+    month: {
+      value: num1,
+      godIndex: monthGodIndex,
+      god: GODS[monthGodIndex]
+    },
+    day: {
+      value: num2,
+      godIndex: dayGodIndex,
+      god: GODS[dayGodIndex]
+    },
+    hour: {
+      value: num3,
+      name: `第三数`,
+      godIndex: hourGodIndex,
+      god: GODS[hourGodIndex]
+    },
+    finalGod: GODS[hourGodIndex]
+  }
+}
+
+/**
+ * 从 RANDOM.ORG 获取真随机数（基于大气噪声）
+ * @param count 数量
+ * @param min 最小值（包含）
+ * @param max 最大值（包含）
+ */
+export async function fetchTrueRandomNumbers(
+  count: number,
+  min: number,
+  max: number
+): Promise<number[]> {
+  const url = `https://www.random.org/integers/?num=${count}&min=${min}&max=${max}&col=1&base=10&format=plain&rnd=new`
+
+  const response = await fetch(url)
+
+  if (!response.ok) {
+    throw new Error(`RANDOM.ORG API error: ${response.status}`)
+  }
+
+  const text = await response.text()
+  const numbers = text
+    .trim()
+    .split('\n')
+    .map(line => parseInt(line.trim(), 10))
+    .filter(n => !isNaN(n))
+
+  if (numbers.length !== count) {
+    throw new Error('Invalid response from RANDOM.ORG')
+  }
+
+  return numbers
+}
+
+/**
+ * 获取三个真随机数（优先 RANDOM.ORG，失败时降级到 crypto）
+ * @param min 最小值（包含）
+ * @param max 最大值（包含）
+ */
+export async function getThreeRandomNumbers(
+  min: number = 1,
+  max: number = 100
+): Promise<{ numbers: [number, number, number]; source: 'random.org' | 'crypto' }> {
+  try {
+    const numbers = await fetchTrueRandomNumbers(3, min, max)
+    return {
+      numbers: numbers as [number, number, number],
+      source: 'random.org'
+    }
+  } catch {
+    // 降级到 crypto.getRandomValues
+    console.warn('RANDOM.ORG unavailable, falling back to crypto.getRandomValues')
+    const fallback = getCryptoRandomNumbers(3, min, max)
+    return {
+      numbers: fallback as [number, number, number],
+      source: 'crypto'
+    }
+  }
+}
+
+/**
+ * 使用 crypto.getRandomValues 生成随机数（降级备选）
+ */
+function getCryptoRandomNumbers(count: number, min: number, max: number): number[] {
+  const range = max - min + 1
+  const array = new Uint32Array(count)
+  crypto.getRandomValues(array)
+  return Array.from(array).map(n => min + (n % range))
+}
+
+/**
+ * 快速生成伪随机数用于动画效果
+ */
+export function getAnimationRandomNumbers(min: number = 1, max: number = 100): [number, number, number] {
+  const range = max - min + 1
+  const array = new Uint32Array(3)
+  crypto.getRandomValues(array)
+  return Array.from(array).map(n => min + (n % range)) as [number, number, number]
+}
+
+/**
  * 根据当前小时获取时辰序号
  */
 export function getHourIndex(hour: number): number {

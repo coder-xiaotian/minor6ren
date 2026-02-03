@@ -5,10 +5,11 @@ import HandDiagram from '@/components/HandDiagram'
 import Result from '@/components/Result'
 import DatePicker from '@/components/DatePicker'
 import ShareButton from '@/components/ShareButton'
-import { calculate, CalculationResult } from '@/lib/xiaoliu'
+import { calculate, calculateByNumbers, getThreeRandomNumbers, getAnimationRandomNumbers, CalculationResult } from '@/lib/xiaoliu'
 import { getCurrentLunar, createLunarDateTime, LunarDateTime } from '@/lib/lunar'
 
 type Theme = 'modern' | 'classic'
+type InputMode = 'current' | 'picker' | 'numbers'
 
 interface DivinationAppProps {
   initialLunar: LunarDateTime
@@ -19,14 +20,16 @@ export default function DivinationApp({ initialLunar, initialResult }: Divinatio
   const [theme, setTheme] = useState<Theme>('modern')
   const [lunar, setLunar] = useState<LunarDateTime>(initialLunar)
   const [result, setResult] = useState<CalculationResult>(initialResult)
-  const [showPicker, setShowPicker] = useState(false)
+  const [inputMode, setInputMode] = useState<InputMode>('current')
+  const [numbers, setNumbers] = useState<[number, number, number]>([1, 1, 1])
+  const [isRolling, setIsRolling] = useState(false)
+  const [randomSource, setRandomSource] = useState<'random.org' | 'crypto' | null>(null)
 
   const handleDateChange = (year: number, month: number, day: number, hourIndex: number) => {
     const newLunar = createLunarDateTime(year, month, day, hourIndex)
     setLunar(newLunar)
     const calcResult = calculate(Math.abs(month), day, hourIndex)
     setResult(calcResult)
-    setShowPicker(false)
   }
 
   const handleCurrentTime = () => {
@@ -38,6 +41,68 @@ export default function DivinationApp({ initialLunar, initialResult }: Divinatio
       currentLunar.hourIndex
     )
     setResult(calcResult)
+    setInputMode('current')
+    setRandomSource(null)
+  }
+
+  const handlePickerToggle = () => {
+    setInputMode(inputMode === 'picker' ? 'current' : 'picker')
+    setRandomSource(null)
+  }
+
+  const handleRandomNumbers = async () => {
+    setInputMode('numbers')
+    setIsRolling(true)
+    setRandomSource(null)
+
+    // 先发起 RANDOM.ORG 请求
+    const randomPromise = getThreeRandomNumbers(1, 100)
+
+    // 同时播放滚动动画
+    const rollDuration = 1000
+    const rollInterval = 50
+    const startTime = Date.now()
+
+    const rollAnimation = () => {
+      const elapsed = Date.now() - startTime
+      if (elapsed < rollDuration) {
+        // 在滚动期间显示伪随机数（仅用于动画）
+        const tempNumbers = getAnimationRandomNumbers(1, 100)
+        setNumbers(tempNumbers)
+        setTimeout(rollAnimation, rollInterval)
+      }
+    }
+
+    rollAnimation()
+
+    // 等待真随机数返回
+    const { numbers: finalNumbers, source } = await randomPromise
+
+    // 确保动画至少播放完
+    const elapsed = Date.now() - startTime
+    if (elapsed < rollDuration) {
+      await new Promise(resolve => setTimeout(resolve, rollDuration - elapsed))
+    }
+
+    // 设置最终结果
+    setNumbers(finalNumbers)
+    setRandomSource(source)
+    const calcResult = calculateByNumbers(finalNumbers[0], finalNumbers[1], finalNumbers[2])
+    setResult(calcResult)
+    setIsRolling(false)
+  }
+
+  const handleNumberChange = (index: 0 | 1 | 2, value: string) => {
+    const num = parseInt(value) || 1
+    const newNumbers = [...numbers] as [number, number, number]
+    newNumbers[index] = Math.max(1, num)
+    setNumbers(newNumbers)
+  }
+
+  const handleNumbersSubmit = () => {
+    const calcResult = calculateByNumbers(numbers[0], numbers[1], numbers[2])
+    setResult(calcResult)
+    setRandomSource(null) // 手动输入，清除随机源标识
   }
 
   const isModern = theme === 'modern'
@@ -97,23 +162,78 @@ export default function DivinationApp({ initialLunar, initialResult }: Divinatio
         </div>
 
         {/* 操作按钮 */}
-        <div className="flex justify-center gap-2 mb-6">
+        <div className="flex flex-wrap justify-center gap-2 mb-4">
           <button
             onClick={handleCurrentTime}
-            className={actionButtonClass}
+            className={inputMode === 'current' ? themeButtonClass(true) : actionButtonClass}
           >
             当前时间
           </button>
           <button
-            onClick={() => setShowPicker(!showPicker)}
-            className={actionButtonClass}
+            onClick={handlePickerToggle}
+            className={inputMode === 'picker' ? themeButtonClass(true) : actionButtonClass}
           >
-            {showPicker ? '收起' : '选择时间'}
+            {inputMode === 'picker' ? '收起' : '选择时间'}
+          </button>
+          <button
+            onClick={handleRandomNumbers}
+            disabled={isRolling}
+            className={`${inputMode === 'numbers' ? themeButtonClass(true) : actionButtonClass} ${isRolling ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {isRolling ? '摇卦中...' : '随机取数'}
           </button>
         </div>
 
+        {/* 数字输入区域 - 仅在随机取数模式下显示 */}
+        {inputMode === 'numbers' && (
+          <div className={`mb-6 p-4 rounded-lg ${isModern ? 'bg-white/50' : 'bg-amber-50/50 border border-amber-300'}`}>
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <span className={`text-sm ${isModern ? 'text-gray-600' : 'text-stone-600'}`}>
+                当前数字：
+              </span>
+              <div className="flex gap-2">
+                {numbers.map((num, index) => (
+                  <input
+                    key={index}
+                    type="number"
+                    min="1"
+                    value={num}
+                    onChange={(e) => handleNumberChange(index as 0 | 1 | 2, e.target.value)}
+                    className={`w-16 px-2 py-1 text-center rounded border text-lg font-mono
+                      ${isModern
+                        ? 'border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+                        : 'border-amber-400 bg-amber-50 focus:border-red-600 focus:ring-1 focus:ring-red-600 text-stone-800'}
+                      ${isRolling ? 'animate-pulse' : ''}
+                    `}
+                    disabled={isRolling}
+                  />
+                ))}
+              </div>
+              <button
+                onClick={handleNumbersSubmit}
+                disabled={isRolling}
+                className={`${actionButtonClass} text-sm ${isRolling ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                起卦
+              </button>
+            </div>
+            <p className={`text-xs text-center ${isModern ? 'text-gray-400' : 'text-stone-500'}`}>
+              基于数字起卦
+              {randomSource && (
+                <span className={randomSource === 'random.org' ? 'text-green-600' : 'text-yellow-600'}>
+                  {' · '}
+                  {randomSource === 'random.org' ? '✓ 真随机数 (RANDOM.ORG)' : '⚠ 伪随机数 (本地)'}
+                </span>
+              )}
+            </p>
+            <p className={`text-xs text-center mt-1 ${isModern ? 'text-gray-400' : 'text-stone-500'}`}>
+              可修改数字后点击"起卦"重新计算
+            </p>
+          </div>
+        )}
+
         {/* 日期选择器 */}
-        {showPicker && (
+        {inputMode === 'picker' && (
           <div className="mb-6">
             <DatePicker
               lunar={lunar}
