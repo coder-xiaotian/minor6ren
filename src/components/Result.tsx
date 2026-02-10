@@ -1,15 +1,16 @@
 'use client'
 
 import { CalculationResult } from '@/lib/xiaoliu'
-import { LunarDateTime, formatLunarDate } from '@/lib/lunar'
+import { LunarDateTime } from '@/lib/lunar'
 
 interface ResultProps {
   result: CalculationResult | null
   lunar: LunarDateTime | null
   theme: 'modern' | 'classic'
+  inputMode: 'current' | 'picker' | 'numbers'
 }
 
-export default function Result({ result, lunar, theme }: ResultProps) {
+export default function Result({ result, lunar, theme, inputMode }: ResultProps) {
   const isModern = theme === 'modern'
 
   if (!result || !lunar) {
@@ -43,16 +44,6 @@ export default function Result({ result, lunar, theme }: ResultProps) {
 
   return (
     <div className={containerClass}>
-      {/* 农历日期 */}
-      <div className={`text-center mb-4 pb-4 border-b ${isModern ? 'border-gray-200' : 'border-amber-300'}`}>
-        <p className={`text-sm ${isModern ? 'text-gray-500' : 'text-stone-600'}`}>
-          {isModern ? '占卜时间' : '占卜時間'}
-        </p>
-        <p className={`text-base sm:text-lg font-medium ${isModern ? 'text-gray-800' : 'text-stone-800'}`}>
-          {formatLunarDate(lunar)}
-        </p>
-      </div>
-
       {/* 推算过程 */}
       <div className={`mb-4 pb-4 border-b ${isModern ? 'border-gray-200' : 'border-amber-300'}`}>
         <p className={`text-sm mb-2 ${isModern ? 'text-gray-500' : 'text-stone-600'}`}>
@@ -60,15 +51,15 @@ export default function Result({ result, lunar, theme }: ResultProps) {
         </p>
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className={`px-2 py-1 rounded ${isModern ? 'bg-amber-100 text-amber-800' : 'bg-stone-200 text-stone-800'}`}>
-            {lunar.monthInChinese}月 → {result.month.god.name}
+            {inputMode === 'numbers' ? result.month.value : `${lunar.monthInChinese}月`} → {result.month.god.name}
           </span>
           <span className={isModern ? 'text-gray-400' : 'text-stone-400'}>→</span>
           <span className={`px-2 py-1 rounded ${isModern ? 'bg-green-100 text-green-800' : 'bg-amber-200 text-amber-900'}`}>
-            {lunar.dayInChinese} → {result.day.god.name}
+            {inputMode === 'numbers' ? result.day.value : lunar.dayInChinese} → {result.day.god.name}
           </span>
           <span className={isModern ? 'text-gray-400' : 'text-stone-400'}>→</span>
           <span className={`px-2 py-1 rounded ${isModern ? 'bg-blue-100 text-blue-800' : 'bg-red-200 text-red-900'}`}>
-            {result.hour.name} → {result.hour.god.name}
+            {inputMode === 'numbers' ? result.hour.value : result.hour.name} → {result.hour.god.name}
           </span>
         </div>
       </div>

@@ -6,7 +6,7 @@ import Result from '@/components/Result'
 import DatePicker from '@/components/DatePicker'
 import ShareButton from '@/components/ShareButton'
 import { calculate, calculateByNumbers, getThreeRandomNumbers, getAnimationRandomNumbers, CalculationResult } from '@/lib/xiaoliu'
-import { getCurrentLunar, createLunarDateTime, LunarDateTime } from '@/lib/lunar'
+import { getCurrentLunar, createLunarDateTime, formatLunarDate, LunarDateTime } from '@/lib/lunar'
 
 type Theme = 'modern' | 'classic'
 type InputMode = 'current' | 'picker' | 'numbers'
@@ -184,6 +184,18 @@ export default function DivinationApp({ initialLunar, initialResult }: Divinatio
           </button>
         </div>
 
+        {/* 农历日期 - 仅当前时间模式下显示 */}
+        {inputMode === 'current' && (
+          <div className={`text-center mb-4 pb-4 border-b ${isModern ? 'border-gray-200' : 'border-amber-300'}`}>
+            <p className={`text-sm ${isModern ? 'text-gray-500' : 'text-stone-600'}`}>
+              {isModern ? '占卜时间' : '占卜時間'}
+            </p>
+            <p className={`text-base sm:text-lg font-medium ${isModern ? 'text-gray-800' : 'text-stone-800'}`}>
+              {formatLunarDate(lunar)}
+            </p>
+          </div>
+        )}
+
         {/* 数字输入区域 - 仅在随机取数模式下显示 */}
         {inputMode === 'numbers' && (
           <div className={`mb-6 p-4 rounded-lg ${isModern ? 'bg-white/50' : 'bg-amber-50/50 border border-amber-300'}`}>
@@ -251,7 +263,7 @@ export default function DivinationApp({ initialLunar, initialResult }: Divinatio
 
         {/* 结果展示 */}
         <div className="mb-6">
-          <Result result={result} lunar={lunar} theme={theme} />
+          <Result result={result} lunar={lunar} theme={theme} inputMode={inputMode} />
         </div>
 
         {/* 分享按钮 */}
