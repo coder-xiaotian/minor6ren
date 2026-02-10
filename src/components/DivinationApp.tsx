@@ -266,6 +266,14 @@ export default function DivinationApp({ initialLunar, initialResult }: Divinatio
           <Result result={result} lunar={lunar} theme={theme} inputMode={inputMode} />
         </div>
 
+        {/* 联系方式 */}
+        <div className={`mb-6 text-center text-sm rounded-lg p-3 ${isModern ? 'bg-white/60 text-gray-600' : 'bg-amber-50/60 text-stone-600 border border-amber-300'}`}>
+          <span>联系方式：</span>
+          <a href="mailto:775146061@qq.com" className="hover:underline">775146061@qq.com</a>
+          {' · '}
+          <span>微信：wanshifucode</span>
+        </div>
+
         {/* 分享按钮 */}
         <div className="flex justify-center mb-6">
           <ShareButton result={result} lunar={lunar} theme={theme} />
