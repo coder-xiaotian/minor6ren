@@ -167,10 +167,11 @@ export default function HandDiagram({ result, theme }: HandDiagramProps) {
               return (
                 <div
                   className={`
-                    w-full aspect-square rounded-lg border-2 mb-2
+                    w-full aspect-square rounded-lg mb-2
                     flex flex-col items-center justify-center
                     transition-all duration-300 cursor-default relative
                     ${style.bgColor} ${style.textColor}
+                    ${style.matchCount === 0 ? (isModern ? 'border-2 border-gray-200' : 'border-2 border-amber-400') : ''}
                   `}
                   style={style.boxShadow ? { boxShadow: style.boxShadow } : undefined}
                 >
@@ -196,10 +197,11 @@ export default function HandDiagram({ result, theme }: HandDiagramProps) {
               return (
                 <div
                   className={`
-                    w-full aspect-square rounded-lg border-2
+                    w-full aspect-square rounded-lg
                     flex flex-col items-center justify-center
                     transition-all duration-300 cursor-default relative
                     ${style.bgColor} ${style.textColor}
+                    ${style.matchCount === 0 ? (isModern ? 'border-2 border-gray-200' : 'border-2 border-amber-400') : ''}
                   `}
                   style={style.boxShadow ? { boxShadow: style.boxShadow } : undefined}
                 >
