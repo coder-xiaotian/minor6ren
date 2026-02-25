@@ -7,6 +7,7 @@ import DatePicker from '@/components/DatePicker'
 import ShareButton from '@/components/ShareButton'
 import { calculate, calculateByNumbers, getThreeRandomNumbers, getAnimationRandomNumbers, CalculationResult } from '@/lib/xiaoliu'
 import { getCurrentLunar, createLunarDateTime, formatLunarDate, LunarDateTime } from '@/lib/lunar'
+import { trackEvent, AnalyticsEvents } from '@/lib/analytics'
 
 type Theme = 'modern' | 'classic'
 type InputMode = 'current' | 'picker' | 'numbers'
@@ -26,6 +27,16 @@ export default function DivinationApp({ initialLunar, initialResult }: Divinatio
   const [randomSource, setRandomSource] = useState<'random.org' | 'crypto' | null>(null)
 
   const handleDateChange = (year: number, month: number, day: number, hourIndex: number) => {
+    // GA 事件追踪：选择时间模式下的起卦
+    trackEvent(AnalyticsEvents.INPUT_DIVINATION_TIME, {
+      category: 'divination_input',
+      label: '选择时间后起卦',
+      year,
+      month,
+      day,
+      hourIndex,
+    })
+
     const newLunar = createLunarDateTime(year, month, day, hourIndex)
     setLunar(newLunar)
     const calcResult = calculate(Math.abs(month), day, hourIndex)
@@ -46,11 +57,27 @@ export default function DivinationApp({ initialLunar, initialResult }: Divinatio
   }
 
   const handlePickerToggle = () => {
-    setInputMode(inputMode === 'picker' ? 'current' : 'picker')
+    const newMode = inputMode === 'picker' ? 'current' : 'picker'
+
+    // GA 事件追踪：选择时间
+    if (newMode === 'picker') {
+      trackEvent(AnalyticsEvents.INPUT_SELECT_TIME, {
+        category: 'divination_input',
+        label: '打开时间选择器',
+      })
+    }
+
+    setInputMode(newMode)
     setRandomSource(null)
   }
 
   const handleRandomNumbers = async () => {
+    // GA 事件追踪：随机取数
+    trackEvent(AnalyticsEvents.INPUT_RANDOM_NUMBERS, {
+      category: 'divination_input',
+      label: '点击随机取数',
+    })
+
     setInputMode('numbers')
     setIsRolling(true)
     setRandomSource(null)
@@ -100,6 +127,16 @@ export default function DivinationApp({ initialLunar, initialResult }: Divinatio
   }
 
   const handleNumbersSubmit = () => {
+    // GA 事件追踪：起卦
+    trackEvent(AnalyticsEvents.INPUT_DIVINATION, {
+      category: 'divination_input',
+      label: '点击起卦按钮',
+      numbers: numbers.join('-'),
+      num1: numbers[0],
+      num2: numbers[1],
+      num3: numbers[2],
+    })
+
     const calcResult = calculateByNumbers(numbers[0], numbers[1], numbers[2])
     setResult(calcResult)
     setRandomSource(null) // 手动输入，清除随机源标识

@@ -39,12 +39,14 @@ export const trackEvent = (
  * 预定义的事件类型
  */
 export const AnalyticsEvents = {
-  // 占卜相关
-  DIVINATION_START: 'divination_start',
-  DIVINATION_COMPLETE: 'divination_complete',
-
   // 主题切换
   THEME_CHANGE: 'theme_change',
+
+  // 占卜输入方式
+  INPUT_SELECT_TIME: 'input_select_time',         // 选择时间
+  INPUT_RANDOM_NUMBERS: 'input_random_numbers',   // 随机取数
+  INPUT_DIVINATION: 'input_divination',           // 起卦（随机取数模式）
+  INPUT_DIVINATION_TIME: 'input_divination_time', // 起卦（选择时间模式）
 
   // 分享相关
   SHARE_GENERATE_CARD: 'share_generate_card',     // 生成卡片
