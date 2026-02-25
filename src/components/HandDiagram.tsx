@@ -15,50 +15,84 @@ export default function HandDiagram({ result, theme }: HandDiagramProps) {
     const isDayGod = result?.day.godIndex === god.index
     const isHourGod = result?.hour.godIndex === god.index
 
+    // 统计重合数量
+    const matchCount = [isMonthGod, isDayGod, isHourGod].filter(Boolean).length
+    const badges = []
+    if (isMonthGod) badges.push('月')
+    if (isDayGod) badges.push('日')
+    if (isHourGod) badges.push('时')
+
     let bgColor = ''
     let textColor = ''
-    let borderColor = ''
+    let boxShadow = ''
 
     if (isModern) {
+      // 背景色显示最内层的（时 < 日 < 月的优先级）
       if (isHourGod) {
         bgColor = 'bg-blue-500'
         textColor = 'text-white'
-        borderColor = 'border-blue-600 ring-2 ring-blue-300'
       } else if (isDayGod) {
         bgColor = 'bg-green-500'
         textColor = 'text-white'
-        borderColor = 'border-green-600'
       } else if (isMonthGod) {
         bgColor = 'bg-amber-500'
         textColor = 'text-white'
-        borderColor = 'border-amber-600'
       } else {
         bgColor = 'bg-gray-100'
         textColor = 'text-gray-700'
-        borderColor = 'border-gray-300'
+      }
+
+      // 多层边框显示重合（按月 > 日 > 时顺序，从外到内）
+      if (matchCount === 3) {
+        // 月日时重叠：最外层黄(月) → 中间绿(日) → 最内蓝(时背景)
+        boxShadow = '0 0 0 3px rgb(34 197 94), 0 0 0 6px rgb(245 158 11)' // 内层日绿，外层月黄
+      } else if (matchCount === 2) {
+        if (isMonthGod && isDayGod) {
+          // 月日重叠：外层黄(月)，背景绿(日)
+          boxShadow = '0 0 0 3px rgb(245 158 11)' // 月黄
+        } else if (isMonthGod && isHourGod) {
+          // 月时重叠：外层黄(月)，背景蓝(时)
+          boxShadow = '0 0 0 3px rgb(245 158 11)' // 月黄
+        } else if (isDayGod && isHourGod) {
+          // 日时重叠：外层绿(日)，背景蓝(时)
+          boxShadow = '0 0 0 3px rgb(34 197 94)' // 日绿
+        }
       }
     } else {
-      // 古典风格
+      // 古典风格：背景色显示最内层的（时 < 日 < 月的优先级）
       if (isHourGod) {
         bgColor = 'bg-red-700'
         textColor = 'text-amber-100'
-        borderColor = 'border-amber-500 ring-2 ring-amber-400'
       } else if (isDayGod) {
         bgColor = 'bg-amber-800'
         textColor = 'text-amber-100'
-        borderColor = 'border-amber-600'
       } else if (isMonthGod) {
         bgColor = 'bg-stone-700'
         textColor = 'text-amber-100'
-        borderColor = 'border-stone-500'
       } else {
         bgColor = 'bg-stone-200'
         textColor = 'text-stone-800'
-        borderColor = 'border-stone-400'
+      }
+
+      // 古典风格多层边框（按月 > 日 > 时顺序，从外到内）
+      if (matchCount === 3) {
+        // 月日时重叠：最外层石(月) → 中间琥珀(日) → 最内红(时背景)
+        boxShadow = '0 0 0 3px rgb(146 64 14), 0 0 0 6px rgb(120 113 108)' // 内层日琥珀，外层月石
+      } else if (matchCount === 2) {
+        if (isMonthGod && isDayGod) {
+          // 月日重叠：外层石(月)，背景琥珀(日)
+          boxShadow = '0 0 0 3px rgb(120 113 108)' // 月石
+        } else if (isMonthGod && isHourGod) {
+          // 月时重叠：外层石(月)，背景红(时)
+          boxShadow = '0 0 0 3px rgb(120 113 108)' // 月石
+        } else if (isDayGod && isHourGod) {
+          // 日时重叠：外层琥珀(日)，背景红(时)
+          boxShadow = '0 0 0 3px rgb(146 64 14)' // 日琥珀
+        }
       }
     }
 
-    return `${bgColor} ${textColor} ${borderColor}`
+    return { bgColor, textColor, boxShadow, badges, matchCount }
   }
 
   const getFortuneColor = (fortune: God['fortune']) => {
@@ -129,15 +163,23 @@ export default function HandDiagram({ result, theme }: HandDiagramProps) {
             {(() => {
               const god = getGodByPosition(finger, 'top')
               if (!god) return null
+              const style = getPositionStyle(god)
               return (
                 <div
                   className={`
                     w-full aspect-square rounded-lg border-2 mb-2
                     flex flex-col items-center justify-center
-                    transition-all duration-300 cursor-default
-                    ${getPositionStyle(god)}
+                    transition-all duration-300 cursor-default relative
+                    ${style.bgColor} ${style.textColor}
                   `}
+                  style={style.boxShadow ? { boxShadow: style.boxShadow } : undefined}
                 >
+                  {/* 角标徽章 */}
+                  {style.matchCount > 1 && (
+                    <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold shadow-sm">
+                      {style.badges.join('')}
+                    </div>
+                  )}
                   <span className={`text-base sm:text-xl font-bold ${getFortuneColor(god.fortune)}`}>
                     {god.name}
                   </span>
@@ -150,15 +192,23 @@ export default function HandDiagram({ result, theme }: HandDiagramProps) {
             {(() => {
               const god = getGodByPosition(finger, 'bottom')
               if (!god) return null
+              const style = getPositionStyle(god)
               return (
                 <div
                   className={`
                     w-full aspect-square rounded-lg border-2
                     flex flex-col items-center justify-center
-                    transition-all duration-300 cursor-default
-                    ${getPositionStyle(god)}
+                    transition-all duration-300 cursor-default relative
+                    ${style.bgColor} ${style.textColor}
                   `}
+                  style={style.boxShadow ? { boxShadow: style.boxShadow } : undefined}
                 >
+                  {/* 角标徽章 */}
+                  {style.matchCount > 1 && (
+                    <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold shadow-sm">
+                      {style.badges.join('')}
+                    </div>
+                  )}
                   <span className={`text-base sm:text-xl font-bold ${getFortuneColor(god.fortune)}`}>
                     {god.name}
                   </span>
