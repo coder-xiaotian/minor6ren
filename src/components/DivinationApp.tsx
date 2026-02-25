@@ -5,6 +5,7 @@ import HandDiagram from '@/components/HandDiagram'
 import Result from '@/components/Result'
 import DatePicker from '@/components/DatePicker'
 import ShareButton from '@/components/ShareButton'
+import FAQ from '@/components/FAQ'
 import { calculate, calculateByNumbers, getThreeRandomNumbers, getAnimationRandomNumbers, CalculationResult } from '@/lib/xiaoliu'
 import { getCurrentLunar, createLunarDateTime, formatLunarDate, LunarDateTime } from '@/lib/lunar'
 import { trackEvent, AnalyticsEvents } from '@/lib/analytics'
@@ -314,6 +315,11 @@ export default function DivinationApp({ initialLunar, initialResult }: Divinatio
         {/* 分享按钮 */}
         <div className="flex justify-center mb-6">
           <ShareButton result={result} lunar={lunar} theme={theme} />
+        </div>
+
+        {/* FAQ 常见问题 */}
+        <div className="mb-6">
+          <FAQ theme={theme} />
         </div>
 
         {/* 页脚 */}

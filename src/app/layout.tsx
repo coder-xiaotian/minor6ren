@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | 小六壬"
   },
   description: "小六壬在线占卜工具，又称诸葛马前课、指掌决。通过农历月日时推算六神（大安、留连、速喜、赤口、小吉、空亡），快速预测吉凶。支持手机端，免费使用。",
-  keywords: ["小六壬", "诸葛马前课", "指掌决", "六壬", "占卜", "算卦", "大安", "留连", "速喜", "赤口", "小吉", "空亡", "农历占卜", "在线算命"],
+  keywords: ["小六壬", "周易", "诸葛马前课", "指掌决", "倪海厦小六壬", "六壬", "占卜", "算卦", "易经", "大安", "留连", "速喜", "赤口", "小吉", "空亡", "农历占卜", "在线算命", "周易占卜"],
   authors: [{ name: "小六壬" }],
   creator: "小六壬",
   publisher: "小六壬",
@@ -44,9 +44,9 @@ export const metadata: Metadata = {
     siteName: "小六壬",
     images: [
       {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
+        url: "/api/og",  // 使用动态 OG 图片 API
+        width: 480,
+        height: 680,
         alt: "小六壬在线占卜",
       },
     ],
@@ -69,9 +69,10 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
+    icon: "/favicon.svg",
+    // TODO: 生成以下图标文件
+    // shortcut: "/favicon-16x16.png",
+    // apple: "/apple-touch-icon.png",
   },
   manifest: "/manifest.json",
 };
