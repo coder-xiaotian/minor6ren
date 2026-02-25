@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { CalculationResult } from '@/lib/xiaoliu'
 import { LunarDateTime, formatLunarDate } from '@/lib/lunar'
+import { trackEvent, AnalyticsEvents } from '@/lib/analytics'
 
 interface ShareButtonProps {
   result: CalculationResult
@@ -23,6 +24,14 @@ export default function ShareButton({ result, lunar, theme }: ShareButtonProps) 
 
   const generateImage = async () => {
     setLoading(true)
+
+    // GA 事件追踪：生成卡片
+    trackEvent(AnalyticsEvents.SHARE_GENERATE_CARD, {
+      category: 'share',
+      label: result.finalGod.name,
+      god: result.finalGod.name,
+      fortune: result.finalGod.fortune,
+    })
 
     const fortuneMap = {
       good: 'good',
@@ -60,6 +69,13 @@ export default function ShareButton({ result, lunar, theme }: ShareButtonProps) 
   const handleDownload = () => {
     if (!imageUrl) return
 
+    // GA 事件追踪：保存图片
+    trackEvent(AnalyticsEvents.SHARE_DOWNLOAD_IMAGE, {
+      category: 'share',
+      label: result.finalGod.name,
+      god: result.finalGod.name,
+    })
+
     const link = document.createElement('a')
     link.href = imageUrl
     link.download = `小六壬-${result.finalGod.name}-${Date.now()}.png`
@@ -70,6 +86,13 @@ export default function ShareButton({ result, lunar, theme }: ShareButtonProps) 
 
   const handleCopy = async () => {
     if (!imageUrl) return
+
+    // GA 事件追踪：复制图片
+    trackEvent(AnalyticsEvents.SHARE_COPY_IMAGE, {
+      category: 'share',
+      label: result.finalGod.name,
+      god: result.finalGod.name,
+    })
 
     try {
       const res = await fetch(imageUrl)
