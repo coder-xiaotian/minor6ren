@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import HandDiagram from '@/components/HandDiagram'
 import Result from '@/components/Result'
 import DatePicker from '@/components/DatePicker'
@@ -26,6 +26,17 @@ export default function DivinationApp({ initialLunar, initialResult }: Divinatio
   const [numbers, setNumbers] = useState<[number, number, number]>([1, 1, 1])
   const [isRolling, setIsRolling] = useState(false)
   const [randomSource, setRandomSource] = useState<'random.org' | 'crypto' | null>(null)
+
+  // 客户端挂载后用真实当前时间重新计算，避免使用服务端构建时的过期结果
+  useEffect(() => {
+    const currentLunar = getCurrentLunar()
+    setLunar(currentLunar)
+    setResult(calculate(
+      Math.abs(currentLunar.month),
+      currentLunar.day,
+      currentLunar.hourIndex
+    ))
+  }, [])
 
   const handleDateChange = (year: number, month: number, day: number, hourIndex: number) => {
     // GA 事件追踪：选择时间模式下的起卦
